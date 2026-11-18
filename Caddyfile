@@ -1,0 +1,27 @@
+# ==============================================================================
+# Caddyfile for Smart Public Bus (Automatic Let's Encrypt TLS)
+# Domain: pranshusharma.tech
+# ==============================================================================
+
+pranshusharma.tech, www.pranshusharma.tech {
+    # Encode with Zstandard and Gzip
+    encode zstd gzip
+
+    # Hardened Security Headers
+    header {
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(self), geolocation=(self)"
+        -Server
+    }
+
+    # Proxy all traffic to FastAPI on 127.0.0.1:8000
+    # Caddy handles WebSockets automatically
+    reverse_proxy 127.0.0.1:8000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
